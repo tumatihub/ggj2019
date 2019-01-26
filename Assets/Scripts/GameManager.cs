@@ -11,7 +11,11 @@ public class GameManager : MonoBehaviour
 
     public GameObject Pet;
 
+    public GameObject Dono;
+    
     private Animator Anim;
+
+    private Dono DonoScript;
 
     private float MaxFelicidade = 100f;
     private float MaxFome = 100f;
@@ -25,10 +29,14 @@ public class GameManager : MonoBehaviour
     private float sonoRate = -1f;
     private float felicidadeRate = 1f;
 
+    private float bonusComida = 5;
+
     // Start is called before the first frame update
     void Start()
     {
         Anim = Pet.GetComponent<Animator>();
+
+        DonoScript = Dono.GetComponent<Dono>();
 
         Felicidade = MaxFelicidade;
         Fome = 0;
@@ -37,6 +45,7 @@ public class GameManager : MonoBehaviour
         barraFelicidade.value = 1f;
         barraFome.value = 0f;
         barraSono.value = 0f;
+
 
     }
 
@@ -63,7 +72,23 @@ public class GameManager : MonoBehaviour
 
     public void Comer()
     {
-        Fome -= 5f;
+        if (DonoScript.TemComidaNoPote())
+        {
+            StartCoroutine(ComerAnim());
+        }
+        else
+        {
+            Debug.Log("Não tem mais comida no pote...");
+        }
+    }
+
+    IEnumerator ComerAnim()
+    {
+        Anim.SetBool("Comendo", true);
+        yield return new WaitForSeconds(2f);
+        Anim.SetBool("Comendo", false);
+        DonoScript.RetiraComidaDoPote();
+        Fome = Mathf.Clamp(Fome - bonusComida, 0, MaxFome);
     }
 
     public void Dormir()
@@ -81,6 +106,12 @@ public class GameManager : MonoBehaviour
         Anim.SetBool("Brincando", true);
         yield return new WaitForSeconds(2f);
         Anim.SetBool("Brincando", false);
-        Felicidade += 5f;
+        DonoScript.RecebeBrincadeira(this);
+    }
+
+    public void Carinho(float carinhoBonus)
+    {
+        Debug.Log("Dono fez carinho");
+        Felicidade = Mathf.Clamp(Felicidade + carinhoBonus, 0, MaxFelicidade);
     }
 }
