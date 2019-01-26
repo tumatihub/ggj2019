@@ -9,6 +9,10 @@ public class GameManager : MonoBehaviour
     public Slider barraFome;
     public Slider barraSono;
 
+    public GameObject Pet;
+
+    private Animator Anim;
+
     private float MaxFelicidade = 100f;
     private float MaxFome = 100f;
     private float MaxSono = 100f;
@@ -24,6 +28,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Anim = Pet.GetComponent<Animator>();
 
         Felicidade = MaxFelicidade;
         Fome = 0;
@@ -54,5 +59,28 @@ public class GameManager : MonoBehaviour
         // Update Sono
         Sono -= Time.deltaTime * sonoRate;
         barraSono.value = Sono / MaxSono;
+    }
+
+    public void Comer()
+    {
+        Fome -= 5f;
+    }
+
+    public void Dormir()
+    {
+
+    }
+
+    public void Brincar()
+    {
+        StartCoroutine(BrincarAnim());
+    }
+
+    IEnumerator BrincarAnim()
+    {
+        Anim.SetBool("Brincando", true);
+        yield return new WaitForSeconds(2f);
+        Anim.SetBool("Brincando", false);
+        Felicidade += 5f;
     }
 }
