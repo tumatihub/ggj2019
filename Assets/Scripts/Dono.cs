@@ -8,8 +8,6 @@ public class Dono : MonoBehaviour
 
     private int qtdComidaPote = 5;
 
-    private float carinhoBonus = 5f;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -26,7 +24,7 @@ public class Dono : MonoBehaviour
     {
         if (Random.value > carinhoRate)
         {
-            gameManager.Carinho(carinhoBonus);
+            gameManager.Carinho();
         }
     }
 

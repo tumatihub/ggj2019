@@ -5,7 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scenes/TelaInicial.unity
+    guid: 55115ef09c1fe69408de70fb8aaea6c7
+  - enabled: 1
+    path: Assets/Scenes/Jogo.unity
+    guid: 973a395c20795c442848791c3aa7b875
   m_configObjects: {}

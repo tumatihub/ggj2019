@@ -9,6 +9,14 @@ public class GameManager : MonoBehaviour
     public Slider barraFome;
     public Slider barraSono;
 
+    public Color TextFelicidadeColor;
+    public Color TextFomeColor;
+    public Color TextSonoColor;
+
+    public Transform SpawnerMsgBonus;
+    public Text BonusMsgPrefab;
+    public Canvas Canvas;
+
     public GameObject Pet;
 
     public GameObject Dono;
@@ -29,7 +37,15 @@ public class GameManager : MonoBehaviour
     private float sonoRate = -1f;
     private float felicidadeRate = 1f;
 
-    private float bonusComida = 5;
+    [SerializeField] private float bonusComida = 10;
+    [SerializeField] private float bonusDormir = 10;
+    [SerializeField] private float bonusCarinho = 10;
+
+    [SerializeField] private float tempoComer = 2f;
+    [SerializeField] private float tempoDormir = 6f;
+    [SerializeField] private float tempoBrincar = 2f;
+
+    [SerializeField] private List<Button> botoes;
 
     // Start is called before the first frame update
     void Start()
@@ -59,15 +75,34 @@ public class GameManager : MonoBehaviour
     {
         // Update Felicidade
         Felicidade -= Time.deltaTime * felicidadeRate;
+        Felicidade = Mathf.Clamp(Felicidade, 0, MaxFelicidade);
         barraFelicidade.value = Felicidade / MaxFelicidade;
 
         // Update Fome
         Fome -= Time.deltaTime * fomeRate;
+        Fome = Mathf.Clamp(Fome, 0, MaxFome);
         barraFome.value = Fome / MaxFome;
 
         // Update Sono
         Sono -= Time.deltaTime * sonoRate;
+        Sono = Mathf.Clamp(Sono, 0, MaxSono);
         barraSono.value = Sono / MaxSono;
+    }
+
+    private void DesativarBotoes()
+    {
+        foreach(Button botao in botoes)
+        {
+            botao.interactable = false;
+        }
+    }
+
+    private void AtivarBotoes()
+    {
+        foreach (Button botao in botoes)
+        {
+            botao.interactable = true;
+        }
     }
 
     public void Comer()
@@ -84,16 +119,37 @@ public class GameManager : MonoBehaviour
 
     IEnumerator ComerAnim()
     {
+        DesativarBotoes();
         Anim.SetBool("Comendo", true);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(tempoComer);
         Anim.SetBool("Comendo", false);
-        DonoScript.RetiraComidaDoPote();
+        //DonoScript.RetiraComidaDoPote();
+        AtivarBotoes();
+        GanhaPontoComida();
+    }
+
+    void GanhaPontoComida()
+    {
+        string msg = "-" + bonusComida + " de Fome";
+        StartCoroutine(GeraMsgBonus(msg, TextFomeColor));
         Fome = Mathf.Clamp(Fome - bonusComida, 0, MaxFome);
     }
 
     public void Dormir()
     {
+        StartCoroutine(DormirAnim());
+    }
 
+    IEnumerator DormirAnim()
+    {
+        DesativarBotoes();
+        Anim.SetBool("Dormindo", true);
+        yield return new WaitForSeconds(tempoDormir);
+        Anim.SetBool("Dormindo", false);
+        string msg = "-" + bonusDormir + " de Sono";
+        StartCoroutine(GeraMsgBonus(msg, TextSonoColor));
+        Sono = Mathf.Clamp(Sono - bonusDormir, 0, MaxSono);
+        AtivarBotoes();
     }
 
     public void Brincar()
@@ -103,15 +159,29 @@ public class GameManager : MonoBehaviour
 
     IEnumerator BrincarAnim()
     {
+        DesativarBotoes();
         Anim.SetBool("Brincando", true);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(tempoBrincar);
         Anim.SetBool("Brincando", false);
         DonoScript.RecebeBrincadeira(this);
+        AtivarBotoes();
     }
 
-    public void Carinho(float carinhoBonus)
+    public void Carinho()
     {
         Debug.Log("Dono fez carinho");
-        Felicidade = Mathf.Clamp(Felicidade + carinhoBonus, 0, MaxFelicidade);
+        string msg = "+" + bonusCarinho + " de Felicidade";
+        StartCoroutine(GeraMsgBonus(msg, TextFelicidadeColor));
+        Felicidade = Mathf.Clamp(Felicidade + bonusCarinho, 0, MaxFelicidade);
+    }
+
+    IEnumerator GeraMsgBonus(string msg, Color color)
+    {
+        Text msgObject = Instantiate(BonusMsgPrefab, Canvas.transform);
+        msgObject.text = msg;
+        msgObject.color = color;
+        yield return new WaitForSeconds(2f);
+        Destroy(msgObject.gameObject);
+
     }
 }
